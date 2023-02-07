@@ -1,0 +1,6 @@
+input
+result
+a
+b
+c
+
