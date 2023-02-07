@@ -14,7 +14,7 @@
 #define MAX_LENGTH 7
 
 #define BUFFER_SIZE 256
-#define PATH_SIZE 8
+#define PATH_SIZE 6
 
 void generatePopulation( char series, int populationSize, int maxLength );
 void generateProg( FILE * file, int lines );
@@ -33,7 +33,7 @@ void generatePopulation( char series, int populationSize, int maxLength )
 	{
 		int max = rand()%maxLength + 1;
 		char path[PATH_SIZE];
-		sprintf(path, "%c%d.txt", series, k);
+		sprintf(path, "%c%d.c", series, k);
 		char * buff;
 		FILE *header = fopen("header.txt", "r");
 		FILE *ret = fopen("return.txt", "r");
@@ -87,11 +87,15 @@ void generateProg( FILE * file, int lines )
 		int flagC2 = 0;
 		int constant1;
 		int constant2;
-		
-		line = rand()%VARIABLES;
-		skipLines(variables, line);
-		fscanf(variables, "%ms", &var);
-		rewind(variables);
+	
+		if( i!=lines-1)
+		{	
+			line = rand()%VARIABLES;
+			skipLines(variables, line);
+			fscanf(variables, "%ms", &var);
+			rewind(variables);
+		}
+		else sscanf("result", "%ms", &var);
 
 	       	line = rand()%(VARIABLES+CONSTANTS);
 		if( line < CONSTANTS )

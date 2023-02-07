@@ -8,12 +8,11 @@ int main( int argc, char * argv[] )
 	result=a=b=c=0;
 	sscanf(argv[1], "%d", &input);
 //s
-	b = input * c;
+	a = c * a;
+	a = c + b;
+	b = a - a;
 	input = input - input;
-	a = input * 1;
-	b = c * a;
-	input = input + input;
-	c = 1 - result;
+	result = a * c;
 //e
     return result;
 }
