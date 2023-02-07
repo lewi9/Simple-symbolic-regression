@@ -7,6 +7,8 @@ int main( int argc, char * argv[] )
 	int input, result, a, b, c;
 	result=a=b=c=0;
 	sscanf(argv[1], "%d", &input);
-//8
+//s
+	c = c + a;
+//e
     return result;
 }

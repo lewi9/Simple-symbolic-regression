@@ -7,6 +7,13 @@ int main( int argc, char * argv[] )
 	int input, result, a, b, c;
 	result=a=b=c=0;
 	sscanf(argv[1], "%d", &input);
-//4
+//s
+	b = input * c;
+	input = input - input;
+	a = input * 1;
+	b = c * a;
+	input = input + input;
+	c = 1 - result;
+//e
     return result;
 }
