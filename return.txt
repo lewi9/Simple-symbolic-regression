@@ -1,2 +1,4 @@
-    return result;
+    fprintf(output, "%lf", result);
+    fclose(output);
+    return 0;
 }
