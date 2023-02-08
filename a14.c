@@ -11,10 +11,7 @@ int main( int argc, char * argv[] )
 	FILE * output = fopen("output.txt", "w");
 	if( !output ) { perror("CHILD OPEN"); return 1; }
 //s
-b = mul(a, 0.000000);
-c = pow(a, b);
-c = add(input, c);
-result = add(input, a);
+result = mul(result, b);
 //e
     fprintf(output, "%lf", result);
     fclose(output);

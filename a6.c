@@ -11,8 +11,10 @@ int main( int argc, char * argv[] )
 	FILE * output = fopen("output.txt", "w");
 	if( !output ) { perror("CHILD OPEN"); return 1; }
 //s
-result = div(1.000000, result);
-result = sub(0.000000, a);
+a = exponent(b, 1.000000);
+c = exponent(0.000000, 0.000000);
+c = sinus(input, input);
+result = sub(0.000000, input);
 //e
     fprintf(output, "%lf", result);
     fclose(output);

@@ -4,6 +4,7 @@
 #include <time.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <limits.h>
 
 #define HEADER_SIZE 12
 #define RETURN_SIZE 4
@@ -13,17 +14,23 @@
 #define VARIABLES 5
 #define FUNCTIONS 7
 
+// > 4
 #define POPULATION_SIZE 20
 #define MAX_LENGTH 7
+#define EPSYLON 1.0
 
 #define BUFFER_SIZE 256
 #define PATH_SIZE 6
 
+double min = INT_MAX;
+
 void generatePopulation( char series, int populationSize, int maxLength );
 void generateProg( FILE * file, int lines );
 double * rate( char series, int populationSize );
+char ** selection( char series, int populationSize, double * rates );
 
 void skipLines( FILE * file, int lines ) { while( lines-- > 0 ) fscanf(file, "%*[^\n]\n"); } 
+void freeHandler( int ev, void * ptr ) { free(ptr); }
 
 int main( int argc, char ** argv )
 {
@@ -31,6 +38,71 @@ int main( int argc, char ** argv )
 	srand(time(NULL));
 	generatePopulation( series, POPULATION_SIZE, MAX_LENGTH );
 	double * rates = rate( series, POPULATION_SIZE );
+	//while( 1 )
+	{
+		char ** parents = selection( series, POPULATION_SIZE, rates );
+		for( int i = 0; i < POPULATION_SIZE; ++i )
+		{
+			printf("%s\n", parents[i]);
+		}
+	}
+}
+
+// Tournament 1 vs 1 vs 1 vs 1
+
+char ** selection( char series, int populationSize, double * rates )
+{
+	char ** paths = calloc( populationSize, sizeof(char *) );
+	if( !paths )
+	{
+		perror("CALLOC");
+		exit(EXIT_FAILURE);
+	}
+	on_exit(freeHandler, paths);
+
+	for( int i = 0; i<populationSize; ++i )
+	{
+		paths[i] = calloc( PATH_SIZE, PATH_SIZE );
+		if( !paths[i] )
+		{
+			perror("CALLOC");
+			exit(EXIT_FAILURE);
+		}
+		on_exit(freeHandler, paths[i]);
+	}
+
+	for( int i = 0; i<populationSize; ++i )
+	{
+		int indexA = rand()%populationSize; 
+		int indexB;
+		do
+		{
+			indexB = rand()%populationSize;
+		}while( indexA == indexB );
+		
+		int indexC;
+		do
+		{
+			indexC = rand()%populationSize;
+		}while( indexC == indexB || indexC == indexA );
+		
+		int indexD;
+		do
+		{
+			indexD = rand()%populationSize;
+		}while( indexD == indexC || indexD == indexB || indexD == indexA );
+		
+		double a = rates[indexA];
+		double b = rates[indexB];
+		double c = rates[indexC];
+		double d = rates[indexD];
+
+		if( a<=b && a<=c && a<=d ) sprintf( paths[i], "%c%d.c", series, indexA+1 );
+		else if( b<=a && b<=c && b<=d ) sprintf( paths[i], "%c%d.c", series, indexB+1 );
+		else if( c<=b && c<=a && c<=d ) sprintf( paths[i], "%c%d.c", series, indexC+1 );
+		else sprintf( paths[i], "%c%d.c", series, indexD+1 );
+	}
+	return paths;
 }
 
 double * rate( char series, int populationSize )
@@ -41,6 +113,7 @@ double * rate( char series, int populationSize )
 		perror("CALLOC");
 		exit(EXIT_FAILURE);
 	}
+	on_exit(freeHandler, rates);
 
 	for( int k = 1; k<=populationSize; ++k )
 	{
@@ -96,11 +169,42 @@ double * rate( char series, int populationSize )
 			}
 			fscanf(output, "%lf", &result);
 			fclose(output);
-			rates[k] += (reference-result)*(reference-result);
+			rates[k-1] += (reference-result)*(reference-result);
 		}
 		fclose(x);
 		fclose(y);
+	min = ( rates[k] < min ) ? rates[k-1] : min;
 	}
+	for( int i = 1; i<=populationSize; ++i )
+	{
+		if( rates[i] == min )
+		{
+			char path[PATH_SIZE];
+			sprintf(path, "%c%d.c", series, i);
+			switch(fork())
+			{
+				case -1:
+					perror("FORK");
+					exit(EXIT_FAILURE);
+					break;
+				case 0:
+					if( execlp("cp", "cp", path, "program.c", NULL) == -1 )
+					{
+						perror("EXEC CP");
+						exit(EXIT_FAILURE);
+					}
+				default:
+					wait(NULL);
+			}
+		}
+	}
+	printf("Minimum overall iterations: %lf\n", min);
+	if( min < EPSYLON )
+	{
+		printf("Program finished\n");
+		exit(EXIT_SUCCESS);
+	}
+
 	unlink("object");
 	return rates;
 }
@@ -234,11 +338,11 @@ void generateProg( FILE * file, int lines )
 				break;
 
 			case 's':
-				fprintf(file, "sin(%s)", a);
+				fprintf(file, "sinus(%s, %s)", a, b);
 				break;
 
 			case 'e':
-				fprintf(file, "exp(%s)", a);
+				fprintf(file, "exponent(%s, %s)", a, b);
 				break;
 
 			case 'p':
