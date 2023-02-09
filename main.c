@@ -280,13 +280,14 @@ void crossMutate( FILE * a, FILE * b, FILE * child, int aSize, int bSize, int aM
 	for( int i = 0; i<=bMax-bMin && j<MAX_LENGTH; ++i, ++j )
 	{
 		copyLine(b, child, allow);
-		allow = 0;
+		
 	}
 	skipLines(a, aMax-aMin+1);
 
 	for( int i = 0; i<aSize-aMax-1 && j<MAX_LENGTH ; ++i, ++j )
 	{
 		copyLine(a, child, allow);
+		allow = 0;
 	}
 
 	fprintf(child, "//e\n");
@@ -496,6 +497,10 @@ double * rate( char series, int populationSize )
 			fscanf(output, "%lf", &result);
 			fclose(output);
 			rates[k-1] += (reference-result)*(reference-result);
+			if( ((reference-result)*(reference-result)) == 0 )
+			{
+				printf("%lf $%lf %lf %s\n", rates[k-1], reference, result, input );
+			}
 		}
 		fclose(x);
 		fclose(y);
@@ -503,11 +508,11 @@ double * rate( char series, int populationSize )
 	}
 	for( int i = 1; i<=populationSize; ++i )
 	{
-		if( rates[i] == min )
+		if( rates[i-1] == min )
 		{
 			char path[PATH_SIZE];
 			sprintf(path, "%c%d.c", series, i);
-			printf("New record!!\n");
+			printf("New record!! %d\n", i);
 			switch(fork())
 			{
 				case -1:
