@@ -275,6 +275,7 @@ void crossMutate( FILE * a, FILE * b, FILE * child, int aSize, int bSize, int aM
 	for( int i = 0; i<aMin; ++i, ++j )
 	{
 		copyLine(a, child, allow);
+		allow = 0;
 	}
 	skipLines(b, HEADER_SIZE+1+bMin);
 	for( int i = 0; i<=bMax-bMin && j<MAX_LENGTH; ++i, ++j )
@@ -288,6 +289,7 @@ void crossMutate( FILE * a, FILE * b, FILE * child, int aSize, int bSize, int aM
 	for( int i = 0; i<aSize-aMax-1 && j<MAX_LENGTH ; ++i, ++j )
 	{
 		copyLine(a, child, allow);
+		allow = 0;
 	}
 
 	fprintf(child, "//e\n");
