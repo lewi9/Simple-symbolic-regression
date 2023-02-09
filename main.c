@@ -16,12 +16,12 @@
 
 // > 4
 // even ( %2 == 0 )
-#define POPULATION_SIZE 20
-#define MAX_LENGTH 7
+#define POPULATION_SIZE 40
+#define MAX_LENGTH 9
 
 // Mutation probability of every element MUT_P = MUTATION_FACTOR1 / MUTATION_FACTOR2
 // Mutation probability of every program 4 * (NUMBER_OF_LINES - HEADER_SIZE - RETURN_SIZE - 2) * MUT_P
-#define MUTATION_FACTOR1 -1
+#define MUTATION_FACTOR1 5
 #define MUTATION_FACTOR2 1000
 #define EPSYLON 1.0
 #define STOP INT_MAX
@@ -74,8 +74,14 @@ int main( int argc, char ** argv )
 	while( t++ < STOP )
 	{
 		printf("Iteration: %d\n", t);
+#ifdef DEBUG
+		printf("Selection\n");
+#endif
 		char ** parents = selection( series, POPULATION_SIZE, rates );
 		oldSeries = series;
+#ifdef DEBUG
+		printf("reproduction\n");
+#endif
 		series = reproduction( series, POPULATION_SIZE, parents );
 		destroyParents( oldSeries, POPULATION_SIZE );
 		rates = rate( series, POPULATION_SIZE );
@@ -255,7 +261,7 @@ void crossMutate( FILE * a, FILE * b, FILE * child, int aSize, int bSize, int aM
 #ifdef DEBUG
 		if(i == 20) exit(1);
 		++i;
-		printf("Loop while: %s\n", line);
+		//printf("Loop while: %s\n", line);
 #endif
 
 	}
@@ -269,9 +275,7 @@ char reproduction( char series, int populationSize, char ** parents )
 	for( int i = 0; i<populationSize; i+=2 )
 	{
 		FILE * a = fopen(parents[i], "r");
-		FILE * b;
-		if( parents[i] == parents[i+1] ) b = a;
-		else b = fopen(parents[i+1], "r");
+		FILE * b = fopen(parents[i+1], "r");
 		
 		if( !a || !b )
 		{
@@ -281,8 +285,10 @@ char reproduction( char series, int populationSize, char ** parents )
 
 		int aSize = 0;
 		int bSize = 0;
+
 		while( skipLines(a, 1) != EOF ) ++aSize;
 		while( skipLines(b, 1) != EOF ) ++bSize;
+
 		rewind(a);
 		rewind(b);
 
@@ -291,13 +297,13 @@ char reproduction( char series, int populationSize, char ** parents )
 		
 		int aMin, aMax;
 		aMin = rand()%aSize;
-		do{ aMax = rand()%aSize; }while( aMin == aMax );
+		aMax = rand()%aSize;
 
 		if( aMin > aMax ) { int t = aMin; aMin = aMax; aMax = t; }
 
 		int bMin, bMax;
 		bMin = rand()%bSize;
-		do{ bMax = rand()%bSize; }while( bMin == bMax );
+		bMax = rand()%bSize;
 
 		if( bMin > bMax ) { int t = bMin; bMin = bMax; bMax = t; }
 
@@ -322,18 +328,19 @@ char reproduction( char series, int populationSize, char ** parents )
 		rewind(a);
 		rewind(b);
 		crossMutate(b, a, bb, bSize, aSize, bMin, bMax, aMin, aMax);
-
+#ifdef DEBUG
+		printf("Cross-mutation has ended\n");
+#endif
 		fclose(aa);
 		fclose(bb);
-		if( a != b )
-		{
-			fclose(a);
-			fclose(b);
-		}
-		else
-		{
-			fclose(a);
-		}
+#ifdef DEBUG
+		printf("%s %s\n", parents[i], parents[i+1]);
+#endif
+		fclose(a);
+		
+#ifdef DEBUG
+		printf("2 children were borned\n");
+#endif
 	}
 	return newSeries;	
 }
