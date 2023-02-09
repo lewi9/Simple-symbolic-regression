@@ -283,6 +283,7 @@ void crossMutate( FILE * a, FILE * b, FILE * child, int aSize, int bSize, int aM
 		copyLine(a, child);
 	}
 
+	fprintf(child, "//e\n");
 	while( fscanf(ret, "%m[^\n]%*c", &line) != EOF ) 
 	{
 		fprintf(child, "%s\n", line);
