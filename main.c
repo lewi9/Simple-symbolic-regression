@@ -96,6 +96,18 @@ void copyLine( FILE * a, FILE * child, int allow )
 {
 	
 	int mutation = rand()%MUTATION_FACTOR2;
+	if( mutation < MUTATION_FACTOR1 && allow )
+	{
+		mutateVar(child);
+		mutateFunc(child);
+		fprintf(child, "(");
+		mutateVarCon(child);
+		fprintf(child, ", ");
+		mutateVarCon(child);
+		fprintf(child, ");\n");
+		allow = 0;
+	}
+
 	if(mutation < MUTATION_FACTOR1 && !allow) return;
 	
 	char * var;
@@ -105,29 +117,29 @@ void copyLine( FILE * a, FILE * child, int allow )
 	
 	fscanf(a, "%ms %*c %m[^(]%*c%m[^,]%*c  %m[^)]%*c%*c%*c", &var, &fun, &elem1, &elem2);
 	mutation = rand()%MUTATION_FACTOR2;
-	if(mutation < MUTATION_FACTOR1) mutateVar(child);
+	if( mutation < MUTATION_FACTOR1 ) mutateVar(child);
 	else fprintf(child, "\t%s = ", var);
 		
 	mutation = rand()%MUTATION_FACTOR2;
-	if(mutation < MUTATION_FACTOR1) mutateFunc(child);
+	if( mutation < MUTATION_FACTOR1 ) mutateFunc(child);
 	else fprintf(child, "%s", fun);
 
 	fprintf(child, "(");
 
 	mutation = rand()%MUTATION_FACTOR2;
-	if(mutation < MUTATION_FACTOR1) mutateVarCon(child);
+	if( mutation < MUTATION_FACTOR1 ) mutateVarCon(child);
 	else fprintf(child, "%s", elem1);
 		
 	fprintf(child, ", ");
 
 	mutation = rand()%MUTATION_FACTOR2;
-	if(mutation < MUTATION_FACTOR1) mutateVarCon(child);
+	if( mutation < MUTATION_FACTOR1 ) mutateVarCon(child);
 	else fprintf(child, "%s", elem2);
 
 	fprintf(child, ");\n");
 
 	mutation = rand()%MUTATION_FACTOR2;
-	if(mutation < MUTATION_FACTOR1)
+	if( mutation < MUTATION_FACTOR1 )
 	{
 		mutateVar(child);
 		mutateFunc(child);
