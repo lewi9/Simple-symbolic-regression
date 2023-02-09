@@ -8,7 +8,7 @@
 
 #define HEADER_SIZE 12
 #define RETURN_SIZE 4
-#define X_SIZE 10
+#define X_SIZE 17
 
 #define CONSTANTS 2
 #define VARIABLES 5
@@ -16,13 +16,13 @@
 
 // > 4
 // even ( %2 == 0 )
-#define POPULATION_SIZE 22
+#define POPULATION_SIZE 10
 #define MAX_LENGTH 8
 
 // Mutation probability of every element MUT_P = MUTATION_FACTOR1 / MUTATION_FACTOR2
 // Mutation probability of every program 4 * (NUMBER_OF_LINES - HEADER_SIZE - RETURN_SIZE - 2) * MUT_P
 #define MUTATION_FACTOR1 5
-#define MUTATION_FACTOR2 1000
+#define MUTATION_FACTOR2 100
 #define EPSYLON 1.0
 #define STOP 2000
 
@@ -40,7 +40,7 @@ void crossMutate( FILE * a, FILE * b, FILE * child, int aSize, int bSize, int aM
 void mutateVar( FILE * child );
 void mutateVarCon( FILE * child );
 void mutateFunc( FILE * child );
-void copyLine( FILE * a, FILE * child );
+void copyLine( FILE * a, FILE * child, int allow );
 
 void destroyParents( char series, int populationSize ) 
 { 
@@ -83,16 +83,20 @@ int main( int argc, char ** argv )
 		printf("reproduction\n");
 #endif
 		series = reproduction( series, POPULATION_SIZE, parents );
+		for( int i = 0; i<POPULATION_SIZE; ++i ) free(parents[i]);
+		free(parents);
+		
 		destroyParents( oldSeries, POPULATION_SIZE );
+		free(rates);
 		rates = rate( series, POPULATION_SIZE );
 	}
 }
 
-void copyLine( FILE * a, FILE * child )
+void copyLine( FILE * a, FILE * child, int allow )
 {
 	
 	int mutation = rand()%MUTATION_FACTOR2;
-	if(mutation < MUTATION_FACTOR1) return;
+	if(mutation < MUTATION_FACTOR1 && allow) return;
 	
 	char * var;
 	char * elem1;
@@ -267,20 +271,22 @@ void crossMutate( FILE * a, FILE * b, FILE * child, int aSize, int bSize, int aM
 	if( bMin > bMax ) bMin = bMax;
 
 	int j = 0;
+	int allow = 1;
 	for( int i = 0; i<aMin; ++i, ++j )
 	{
-		copyLine(a, child);
+		copyLine(a, child, allow);
 	}
 	skipLines(b, HEADER_SIZE+1+bMin);
 	for( int i = 0; i<=bMax-bMin && j<MAX_LENGTH; ++i, ++j )
 	{
-		copyLine(b, child);
+		copyLine(b, child, allow);
+		allow = 0;
 	}
 	skipLines(a, aMax-aMin+1);
 
 	for( int i = 0; i<aSize-aMax-1 && j<MAX_LENGTH ; ++i, ++j )
 	{
-		copyLine(a, child);
+		copyLine(a, child, allow);
 	}
 
 	fprintf(child, "//e\n");
@@ -381,7 +387,6 @@ char ** selection( char series, int populationSize, double * rates )
 		perror("CALLOC");
 		exit(EXIT_FAILURE);
 	}
-	on_exit(freeHandler, paths);
 
 	for( int i = 0; i<populationSize; ++i )
 	{
@@ -391,7 +396,6 @@ char ** selection( char series, int populationSize, double * rates )
 			perror("CALLOC");
 			exit(EXIT_FAILURE);
 		}
-		on_exit(freeHandler, paths[i]);
 	}
 
 	for( int i = 0; i<populationSize; ++i )
@@ -431,12 +435,11 @@ char ** selection( char series, int populationSize, double * rates )
 double * rate( char series, int populationSize )
 {
 	double * rates = calloc(populationSize, sizeof(double));
-	if( !rates)
+	if( !rates )
 	{
 		perror("CALLOC");
 		exit(EXIT_FAILURE);
 	}
-	on_exit(freeHandler, rates);
 
 	for( int k = 1; k<=populationSize; ++k )
 	{
@@ -504,6 +507,7 @@ double * rate( char series, int populationSize )
 		{
 			char path[PATH_SIZE];
 			sprintf(path, "%c%d.c", series, i);
+			printf("New record!!\n");
 			switch(fork())
 			{
 				case -1:
