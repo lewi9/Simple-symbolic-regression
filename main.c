@@ -21,7 +21,7 @@
 
 // Mutation probability of every element MUT_P = MUTATION_FACTOR1 / MUTATION_FACTOR2
 // Mutation probability of every program 4 * (NUMBER_OF_LINES - HEADER_SIZE - RETURN_SIZE - 2) * MUT_P
-#define MUTATION_FACTOR1 1
+#define MUTATION_FACTOR1 -1
 #define MUTATION_FACTOR2 1000
 #define EPSYLON 1.0
 #define STOP INT_MAX
@@ -77,7 +77,6 @@ int main( int argc, char ** argv )
 		char ** parents = selection( series, POPULATION_SIZE, rates );
 		oldSeries = series;
 		series = reproduction( series, POPULATION_SIZE, parents );
-		printf("ello\n");
 		destroyParents( oldSeries, POPULATION_SIZE );
 		rates = rate( series, POPULATION_SIZE );
 	}
@@ -90,7 +89,7 @@ void copyLine( FILE * a, FILE * child )
 	char * elem2;
 	char * fun;
 
-	fscanf(a, "%ms %*c %m[^(]%*c%m[^,]%*c %m[^)]%*c%*c", &var, &fun, &elem1, &elem2);
+	fscanf(a, "%ms %*c %m[^(]%*c%m[^,]%*c  %m[^)]%*c%*c%*c", &var, &fun, &elem1, &elem2);
 	int mutatation = rand()%MUTATION_FACTOR2;
 	if(mutatation < MUTATION_FACTOR1) mutateVar(child);
 	else fprintf(child, "\t%s = ", var);
@@ -116,7 +115,6 @@ void copyLine( FILE * a, FILE * child )
 
 void mutateVar( FILE * child )
 {
-
 	char * var;
 	int line;
 
@@ -244,9 +242,22 @@ void crossMutate( FILE * a, FILE * b, FILE * child, int aSize, int bSize, int aM
 		copyLine(b, child);
 	}
 	skipLines(a, aMax-aMin+1);
+	for( int i = 0; i<aSize-aMax-1; ++i )
+	{
+		copyLine(a, child);
+	}
+#ifdef DEBUG
+	int i = 0;
+#endif
 	while( fscanf(a, "%m[^\n]%*c", &line) != EOF ) 
 	{
 		fprintf(child, "%s\n", line);
+#ifdef DEBUG
+		if(i == 20) exit(1);
+		++i;
+		printf("Loop while: %s\n", line);
+#endif
+
 	}
 }
 
@@ -258,7 +269,10 @@ char reproduction( char series, int populationSize, char ** parents )
 	for( int i = 0; i<populationSize; i+=2 )
 	{
 		FILE * a = fopen(parents[i], "r");
-		FILE * b = fopen(parents[i+1], "r");
+		FILE * b;
+		if( parents[i] == parents[i+1] ) b = a;
+		else b = fopen(parents[i+1], "r");
+		
 		if( !a || !b )
 		{
 			perror("OPEN");
@@ -301,8 +315,9 @@ char reproduction( char series, int populationSize, char ** parents )
 			perror("OPEN");
 			exit(EXIT_FAILURE);
 		}
-		printf("Siema\n");
-
+#ifdef DEBUG
+		printf("%d %d %d %d %d %d\n", aSize, bSize, aMin, aMax, bMin, bMax);
+#endif
 		crossMutate(a, b, aa, aSize, bSize, aMin, aMax, bMin, bMax);
 		rewind(a);
 		rewind(b);
@@ -310,8 +325,15 @@ char reproduction( char series, int populationSize, char ** parents )
 
 		fclose(aa);
 		fclose(bb);
-		fclose(a);
-		fclose(b);	
+		if( a != b )
+		{
+			fclose(a);
+			fclose(b);
+		}
+		else
+		{
+			fclose(a);
+		}
 	}
 	return newSeries;	
 }
@@ -441,7 +463,7 @@ double * rate( char series, int populationSize )
 		}
 		fclose(x);
 		fclose(y);
-	min = ( rates[k] < min ) ? rates[k-1] : min;
+	min = ( rates[k-1] < min ) ? rates[k-1] : min;
 	}
 	for( int i = 1; i<=populationSize; ++i )
 	{
