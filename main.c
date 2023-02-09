@@ -10,9 +10,9 @@
 #define RETURN_SIZE 4
 #define X_SIZE 17
 
-#define CONSTANTS 2
-#define VARIABLES 5
-#define FUNCTIONS 7
+#define CONSTANTS 3
+#define VARIABLES 7
+#define FUNCTIONS 10
 
 // > 4
 // even ( %2 == 0 )
@@ -21,7 +21,7 @@
 
 // Mutation probability of every element MUT_P = MUTATION_FACTOR1 / MUTATION_FACTOR2
 // Mutation probability of every program 4 * (NUMBER_OF_LINES - HEADER_SIZE - RETURN_SIZE - 2) * MUT_P
-#define MUTATION_FACTOR1 5
+#define MUTATION_FACTOR1 7
 #define MUTATION_FACTOR2 100
 #define EPSYLON 1.0
 #define STOP 2000

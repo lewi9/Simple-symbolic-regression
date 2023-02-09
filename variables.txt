@@ -1,5 +1,7 @@
 input
 result
+input
+result
 a
 b
 c

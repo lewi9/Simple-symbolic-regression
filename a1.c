@@ -12,11 +12,7 @@ int main( int argc, char * argv[] )
 	if( !output ) { perror("CHILD OPEN"); return 1; }
 //s
 	c = mul(input, input);
-	a = pow(result, 0.000000);
 	result = mul(input, input);
-	result = mul(input, input);
-	a = pow(result, b);
-	result = sub(result, a);
 //e
     fprintf(output, "%lf", result);
     fclose(output);
