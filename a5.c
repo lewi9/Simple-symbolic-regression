@@ -11,7 +11,7 @@ int main( int argc, char * argv[] )
 	FILE * output = fopen("output.txt", "w");
 	if( !output ) { perror("CHILD OPEN"); return 1; }
 //s
-result = pow(1.000000, result);
+	result = pow(0.000000, b);
 //e
     fprintf(output, "%lf", result);
     fclose(output);

@@ -11,10 +11,10 @@ int main( int argc, char * argv[] )
 	FILE * output = fopen("output.txt", "w");
 	if( !output ) { perror("CHILD OPEN"); return 1; }
 //s
-c = mul(a, 1.000000);
-input = exponent(c, 0.000000);
-b = mul(input, c);
-result = pow(a, input);
+	a = sinus(0.000000, input);
+	c = sub(b, 1.000000);
+	a = exponent(1.000000, 0.000000);
+	result = mul(c, result);
 //e
     fprintf(output, "%lf", result);
     fclose(output);
