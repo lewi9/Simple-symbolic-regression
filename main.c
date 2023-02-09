@@ -96,7 +96,7 @@ void copyLine( FILE * a, FILE * child, int allow )
 {
 	
 	int mutation = rand()%MUTATION_FACTOR2;
-	if(mutation < MUTATION_FACTOR1 && allow) return;
+	if(mutation < MUTATION_FACTOR1 && !allow) return;
 	
 	char * var;
 	char * elem1;
@@ -280,6 +280,7 @@ void crossMutate( FILE * a, FILE * b, FILE * child, int aSize, int bSize, int aM
 	for( int i = 0; i<=bMax-bMin && j<MAX_LENGTH; ++i, ++j )
 	{
 		copyLine(b, child, allow);
+		allow = 0;
 		
 	}
 	skipLines(a, aMax-aMin+1);
@@ -287,7 +288,6 @@ void crossMutate( FILE * a, FILE * b, FILE * child, int aSize, int bSize, int aM
 	for( int i = 0; i<aSize-aMax-1 && j<MAX_LENGTH ; ++i, ++j )
 	{
 		copyLine(a, child, allow);
-		allow = 0;
 	}
 
 	fprintf(child, "//e\n");
