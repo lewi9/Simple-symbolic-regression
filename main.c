@@ -337,6 +337,7 @@ char reproduction( char series, int populationSize, char ** parents )
 		printf("%s %s\n", parents[i], parents[i+1]);
 #endif
 		fclose(a);
+		fclose(b);
 		
 #ifdef DEBUG
 		printf("2 children were borned\n");
