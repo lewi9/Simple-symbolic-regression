@@ -16,15 +16,15 @@
 
 // > 4
 // even ( %2 == 0 )
-#define POPULATION_SIZE 40
-#define MAX_LENGTH 9
+#define POPULATION_SIZE 22
+#define MAX_LENGTH 8
 
 // Mutation probability of every element MUT_P = MUTATION_FACTOR1 / MUTATION_FACTOR2
 // Mutation probability of every program 4 * (NUMBER_OF_LINES - HEADER_SIZE - RETURN_SIZE - 2) * MUT_P
 #define MUTATION_FACTOR1 5
 #define MUTATION_FACTOR2 1000
 #define EPSYLON 1.0
-#define STOP INT_MAX
+#define STOP 2000
 
 #define BUFFER_SIZE 256
 #define PATH_SIZE 6
@@ -90,33 +90,49 @@ int main( int argc, char ** argv )
 
 void copyLine( FILE * a, FILE * child )
 {
+	
+	int mutation = rand()%MUTATION_FACTOR2;
+	if(mutation < MUTATION_FACTOR1) return;
+	
 	char * var;
 	char * elem1;
 	char * elem2;
 	char * fun;
-
+	
 	fscanf(a, "%ms %*c %m[^(]%*c%m[^,]%*c  %m[^)]%*c%*c%*c", &var, &fun, &elem1, &elem2);
-	int mutatation = rand()%MUTATION_FACTOR2;
-	if(mutatation < MUTATION_FACTOR1) mutateVar(child);
+	mutation = rand()%MUTATION_FACTOR2;
+	if(mutation < MUTATION_FACTOR1) mutateVar(child);
 	else fprintf(child, "\t%s = ", var);
 		
-	mutatation = rand()%MUTATION_FACTOR2;
-	if(mutatation < MUTATION_FACTOR1) mutateFunc(child);
+	mutation = rand()%MUTATION_FACTOR2;
+	if(mutation < MUTATION_FACTOR1) mutateFunc(child);
 	else fprintf(child, "%s", fun);
 
 	fprintf(child, "(");
 
-	mutatation = rand()%MUTATION_FACTOR2;
-	if(mutatation < MUTATION_FACTOR1) mutateVarCon(child);
+	mutation = rand()%MUTATION_FACTOR2;
+	if(mutation < MUTATION_FACTOR1) mutateVarCon(child);
 	else fprintf(child, "%s", elem1);
 		
 	fprintf(child, ", ");
 
-	mutatation = rand()%MUTATION_FACTOR2;
-	if(mutatation < MUTATION_FACTOR1) mutateVarCon(child);
+	mutation = rand()%MUTATION_FACTOR2;
+	if(mutation < MUTATION_FACTOR1) mutateVarCon(child);
 	else fprintf(child, "%s", elem2);
 
 	fprintf(child, ");\n");
+
+	mutation = rand()%MUTATION_FACTOR2;
+	if(mutation < MUTATION_FACTOR1)
+	{
+		mutateVar(child);
+		mutateFunc(child);
+		fprintf(child, "(");
+		mutateVarCon(child);
+		fprintf(child, ", ");
+		mutateVarCon(child);
+		fprintf(child, ");\n");
+	}
 }
 
 void mutateVar( FILE * child )
@@ -232,39 +248,47 @@ void mutateFunc( FILE * child )
 
 void crossMutate( FILE * a, FILE * b, FILE * child, int aSize, int bSize, int aMin, int aMax, int bMin, int bMax)
 {
+	FILE * ret = fopen("return.txt", "r");
+	if( !ret ) 
+	{
+		perror("OPEN");
+		exit(EXIT_FAILURE);
+	}
+
 	char * line;
 	for( int i = 0; i<=HEADER_SIZE; ++i )
 	{
 		fscanf(a, "%m[^\n]%*c", &line);
 		fprintf(child, "%s\n", line);
 	}
-	for( int i = 0; i<aMin; ++i )
+	if( aMax >= MAX_LENGTH ) aMax = MAX_LENGTH-1;
+	if( aMin > aMax ) aMin = aMax;
+	if( bMax >= MAX_LENGTH ) bMax = MAX_LENGTH-1;
+	if( bMin > bMax ) bMin = bMax;
+
+	int j = 0;
+	for( int i = 0; i<aMin; ++i, ++j )
 	{
 		copyLine(a, child);
 	}
 	skipLines(b, HEADER_SIZE+1+bMin);
-	for( int i = 0; i<=bMax-bMin; ++i )
+	for( int i = 0; i<=bMax-bMin && j<MAX_LENGTH; ++i, ++j )
 	{
 		copyLine(b, child);
 	}
 	skipLines(a, aMax-aMin+1);
-	for( int i = 0; i<aSize-aMax-1; ++i )
+
+	for( int i = 0; i<aSize-aMax-1 && j<MAX_LENGTH ; ++i, ++j )
 	{
 		copyLine(a, child);
 	}
-#ifdef DEBUG
-	int i = 0;
-#endif
-	while( fscanf(a, "%m[^\n]%*c", &line) != EOF ) 
+
+	while( fscanf(ret, "%m[^\n]%*c", &line) != EOF ) 
 	{
 		fprintf(child, "%s\n", line);
-#ifdef DEBUG
-		if(i == 20) exit(1);
-		++i;
-		//printf("Loop while: %s\n", line);
-#endif
-
 	}
+
+	fclose(ret);
 }
 
 
