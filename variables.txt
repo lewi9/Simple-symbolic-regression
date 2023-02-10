@@ -2,6 +2,7 @@ input
 result
 input
 result
+result
 a
 b
 c
