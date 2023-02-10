@@ -21,7 +21,7 @@
 
 // Mutation probability of every element MUT_P = MUTATION_FACTOR1 / MUTATION_FACTOR2
 // Mutation probability of every program 4 * (NUMBER_OF_LINES - HEADER_SIZE - RETURN_SIZE - 2) * MUT_P
-#define MUTATION_FACTOR1 25
+#define MUTATION_FACTOR1 3
 #define MUTATION_FACTOR2 100
 #define EPSYLON 1
 #define STOP 2000

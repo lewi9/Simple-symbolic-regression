@@ -11,9 +11,12 @@ int main( int argc, char * argv[] )
 	FILE * output = fopen("output.txt", "w");
 	if( !output ) { perror("CHILD OPEN"); return 1; }
 //s
-	c = mul(1.000000, input);
-	c = pow(result, c);
-	result = mul(input, input);
+	a = sub(1.700000, b);
+	input = add(result, 1.000000);
+	result = sinus(result, input);
+	result = mul(0.000000, c);
+	result = sinus(input, input);
+	result = sub(1.700000, result);
 //e
     fprintf(output, "%lf", result);
     fclose(output);
